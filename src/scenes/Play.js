@@ -42,7 +42,7 @@ class Play extends Phaser.Scene{
         }
 
         // give the owl an upward velocity when space bar is hit
-        if(Phaser.Input.Keyboard.JustDown(keySpace)){
+        if(Phaser.Input.Keyboard.JustDown(keySpace) && owl.body.touching.down){
             owl.setVelocityY(-330);
         }
 
