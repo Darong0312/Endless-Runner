@@ -15,7 +15,8 @@ class Play extends Phaser.Scene{
         // setting background
         this.field = this.add.tileSprite(0,0,800,600,'field').setOrigin(0,0);
 
-        
+        this.jump = false;
+
         // init ground
         platforms = this.physics.add.staticGroup();
         platforms.create(400,700, 'ground').setScale(2).refreshBody();
@@ -26,10 +27,13 @@ class Play extends Phaser.Scene{
         // setting jump key to space bar
         keySpace = this.input.keyboard.addKey(32);
 
-        this.gameOver = false;
+        this.jump = false;
 
+        this.gameOver = false;
+        this.jumpCount = 0;
         // adding collide with owl and platform
         this.physics.add.collider(owl,platforms);
+
     }
 
     update(){
@@ -42,8 +46,24 @@ class Play extends Phaser.Scene{
         }
 
         // give the owl an upward velocity when space bar is hit
-        if(Phaser.Input.Keyboard.JustDown(keySpace) && owl.body.touching.down){
-            owl.setVelocityY(-330);
+        // double jump
+        if(keySpace.isDown){
+            if(!this.jump){
+                if(this.jumpCount > 0){
+                    owl.setVelocityY(-330);
+                    this.jump = true;
+                    --this.jumpCount;
+                }
+            }
+        }
+
+        if(keySpace.isUp){
+            this.jump = false;
+        }
+
+        if(owl.body.touching.down){
+            this.jumpCount = 1;
+
         }
 
         // background move speed
