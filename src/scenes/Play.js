@@ -87,13 +87,19 @@ class Play extends Phaser.Scene{
             platform.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.platformGroup.add(platform);
         }
+        platform.setVelocityY(0);
+        platform.body.allowGravity = false;
         platform.displayWidth = platformWidth;
         this.nextPlatformDistance = Phaser.Math.Between(gameOptions.spawnRange[0], gameOptions.spawnRange[1]);
     }
 
     update(){
         owl.setVelocityX(0);
-
+        
+        if(owl.y > config.height){
+            this.gameOver = true;
+        }
+        
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keySpace)) {
             this.scene.restart();
         }
