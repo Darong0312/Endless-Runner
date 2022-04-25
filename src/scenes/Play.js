@@ -25,10 +25,6 @@ class Play extends Phaser.Scene{
 
         this.jump = false;
 
-        // init ground
-        //platforms = this.physics.add.staticGroup();
-        //platforms.create(300,600, 'plat').setScale(2).refreshBody();
-
         this.platformGroup = this.add.group({
  
             // once a platform is removed, it's added to the pool
@@ -47,6 +43,10 @@ class Play extends Phaser.Scene{
         });
 
         this.addPlatform(game.config.width, game.config.width / 2);
+
+        //timer = game.time.create(false);
+
+        //timer.loop(2000,"jump+1", this);
 
         // init owl
         owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'BabyOwl');
