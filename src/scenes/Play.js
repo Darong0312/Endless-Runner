@@ -18,16 +18,13 @@ class Play extends Phaser.Scene{
         this.load.image('plat','./assets/platform.png');
     }
 
+    var timer;
 
     create(){
         // setting background
         this.field = this.add.tileSprite(0,0,800,600,'field').setOrigin(0,0);
 
         this.jump = false;
-
-        // init ground
-        //platforms = this.physics.add.staticGroup();
-        //platforms.create(300,600, 'plat').setScale(2).refreshBody();
 
         this.platformGroup = this.add.group({
  
@@ -47,6 +44,10 @@ class Play extends Phaser.Scene{
         });
 
         this.addPlatform(game.config.width, game.config.width / 2);
+
+        timer = game.time.create(false);
+
+        //timer.loop(2000,"jump+1", this);
 
         // init owl
         owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'BabyOwl');
