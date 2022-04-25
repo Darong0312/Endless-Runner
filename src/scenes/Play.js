@@ -1,7 +1,7 @@
 let gameOptions = {
     platformStartSpeed: 350,
-    spawnRange: [100, 350],
-    platformSizeRange: [50, 250],
+    spawnRange: [120, 180],
+    platformSizeRange: [150, 250],
 }
 
 class Play extends Phaser.Scene{
@@ -125,7 +125,7 @@ class Play extends Phaser.Scene{
         }
 
         //let the owl move
-        const movespeed = 200;
+        const movespeed = 400;
         
         if(keyLEFT.isDown){
             owl.setVelocityX(-movespeed);
