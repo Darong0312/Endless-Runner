@@ -18,7 +18,6 @@ class Play extends Phaser.Scene{
         this.load.image('plat','./assets/platform.png');
     }
 
-    var timer;
 
     create(){
         // setting background
@@ -45,7 +44,7 @@ class Play extends Phaser.Scene{
 
         this.addPlatform(game.config.width, game.config.width / 2);
 
-        timer = game.time.create(false);
+        //timer = game.time.create(false);
 
         //timer.loop(2000,"jump+1", this);
 
