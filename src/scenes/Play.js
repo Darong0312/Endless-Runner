@@ -50,7 +50,7 @@ class Play extends Phaser.Scene{
 
         // init owl
         owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'BabyOwl');
-
+        
         // setting jump key to space bar
         keySpace = this.input.keyboard.addKey(32);
 
@@ -88,6 +88,7 @@ class Play extends Phaser.Scene{
             this.platformGroup.add(platform);
         }
         platform.setVelocityY(0);
+        platform.setFrictionX(0);
         platform.body.allowGravity = false;
         platform.displayWidth = platformWidth;
         this.nextPlatformDistance = Phaser.Math.Between(gameOptions.spawnRange[0], gameOptions.spawnRange[1]);
