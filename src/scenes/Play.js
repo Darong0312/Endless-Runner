@@ -16,6 +16,7 @@ class Play extends Phaser.Scene{
         this.load.image('field','./assets/field.png');
         this.load.image('ground','./assets/ground.png');
         this.load.image('plat','./assets/platform.png');
+        this.load.image('jump','./assets/OwlFlutter.png');
     }
 
 
@@ -66,7 +67,12 @@ class Play extends Phaser.Scene{
         this.gameOver = false;
         this.jumpCount = 0;
 
-        
+        this.anims.create({
+            key: 'fly',
+            frames:[{key: 'jump'}],
+            frameRate: 20,
+            repeat:-1
+        });
 
     }
 
@@ -98,6 +104,7 @@ class Play extends Phaser.Scene{
         owl.setVelocityX(0);
         
         if(owl.y > config.height){
+            this.add.text(game.config.width/3, game.config.height/2.5, 'Press Space Bar to restart');
             this.gameOver = true;
         }
         
@@ -142,6 +149,7 @@ class Play extends Phaser.Scene{
                     owl.setVelocityY(-200);
                     this.jump = true;
                     --this.jumpCount;
+                    owl.anims.play('fly',true);
                 }
             }
         }
