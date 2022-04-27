@@ -16,7 +16,7 @@ class Play extends Phaser.Scene{
         this.load.image('field','./assets/field.png');
         this.load.image('ground','./assets/ground.png');
         this.load.image('plat','./assets/platform.png');
-        this.load.image('jump','./assets/OwlFlutter.png');
+        this.load.image('jump','./assets/owl flutter.png');
     }
 
 
@@ -67,13 +67,20 @@ class Play extends Phaser.Scene{
         this.gameOver = false;
         this.jumpCount = 0;
 
+        
+        // animation
         this.anims.create({
             key: 'fly',
             frames:[{key: 'jump'}],
-            frameRate: 20,
             repeat:-1
         });
 
+        this.anims.create({
+            key: 'walk',
+            frames:[{key: 'BabyOwl'}],
+            repeat:-1
+        });
+        
     }
 
     addPlatform(platformWidth, posX){
@@ -133,7 +140,7 @@ class Play extends Phaser.Scene{
         }
 
         //let the owl move
-        const movespeed = 400;
+        const movespeed = 300;
         
         if(keyLEFT.isDown){
             owl.setVelocityX(-movespeed);
@@ -149,7 +156,7 @@ class Play extends Phaser.Scene{
                     owl.setVelocityY(-200);
                     this.jump = true;
                     --this.jumpCount;
-                    owl.anims.play('fly',true);
+//                    owl.anims.play('fly',true);
                 }
             }
         }
@@ -160,11 +167,14 @@ class Play extends Phaser.Scene{
 
         if(owl.body.touching.down){
             this.jumpCount = 1;
-
+//            owl.anims.play('walk',true);
         }
 
         // background move speed
-        this.field.tilePositionX -= 3;
+        this.field.tilePositionX -= 1;
 
     }
+
+    // enemy
+
 }
