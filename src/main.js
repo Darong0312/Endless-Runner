@@ -6,7 +6,7 @@ let config = {
         default: 'arcade',
         arcade: {
             gravity: { y:400},
-            debug: false
+            debug: true
         }
     },
     scene: [ Menu, Play ]
@@ -21,4 +21,4 @@ let borderPadding = borderUISize / 3;
 // reserve keyboard variables
 let keySpace,keyUP,keyLEFT,keyRIGHT;
 
-var owl,hawk;
+var owl;

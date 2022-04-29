@@ -18,7 +18,18 @@ class Play extends Phaser.Scene{
         this.load.image('ground','./assets/ground.png');
         this.load.image('plat','./assets/platform.png');
         this.load.image('jump','./assets/owl flutter.png');
-        this.load.image('Hawk','./assets/Hawk.png');
+        this.load.spritesheet('owlJump','./assets/owl jump.png', {
+            frameWidth: 46,
+            frameHeight: 57,
+            startFrame: 0,
+            endFrame: 6
+        });
+        this.load.spritesheet('hawk','./assets/Hawk.png',{
+            frameWidth: 96,
+            frameHeight: 96,
+            startFrame:0,
+            endFrame: 5
+        });
         this.load.spritesheet('run','./assets/Run.png',{
             frameWidth: 46,
             frameHeight: 57,
@@ -88,9 +99,6 @@ class Play extends Phaser.Scene{
         // adding collide with owl and platform
         this.platformCollider = this.physics.add.collider(owl,this.platformGroup,function(){
             // play "run" animation if the player is on a platform
-            if(!owl.anims.isPlaying){
-                owl.anims.play("walk");
-            }
         }, null, this);
 //        this.physics.add.collider(owl,hawk);
 
@@ -119,6 +127,16 @@ class Play extends Phaser.Scene{
         });
 
         this.anims.create({
+            key: 'owlFly',
+            frames: this.anims.generateFrameNumbers("owlJump", {
+                start: 3,
+                end: 6,
+                first: 3
+            }),
+            repeat: -1
+        });
+
+        this.anims.create({
             key: 'walk',
             frames: this.anims.generateFrameNumbers("run", {
                 start: 0,
@@ -128,6 +146,17 @@ class Play extends Phaser.Scene{
             repeat:-1
         });
         
+        this.anims.create({
+            key: 'hawkF',
+            frames: this.anims.generateFrameNumbers("hawk" ,{
+                start: 0,
+                end: 5,
+                first:0
+            }),
+            // debug fps
+            framesRate: 10,
+            repeat: -1
+        })
     }
 
     update(){
@@ -164,26 +193,20 @@ class Play extends Phaser.Scene{
             this.addPlatform(nextPlatformWidth, game.config.width + nextPlatformWidth / 2);
         }
 
-        let minRange = game.config.height;
+        let minHawkDistance = game.config.width;
         this.hawkGroup.getChildren().forEach(function(hawk){
             let hawkDistance = game.config.width - hawk.x - hawk.displayWidth / 2;
-            minRange = Math.min(minRange, hawkDistance);
+            minHawkDistance = Math.min(minHawkDistance, hawkDistance);
             if(hawk.x < - hawk.displayWidth / 2){
                 this.hawkGroup.killAndHide(hawk);
                 this.hawkGroup.remove(hawk);
-                this.hawkCount = 0;
-                console.log(this.hawkCount);
-                console.log("remove hawk");
             }
         },this);
  
         // adding new hawk
-        if(minRange > this.nextHawkRange){
+        if(minHawkDistance > this.nextHawkDistance){
             var randomRange = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
             this.addHawk(game.config.width,randomRange);
-            this.hawkCount = 1;
-            console.log(this.hawkCount);
-            console.log("add in hawk");
         }
 
 
@@ -204,9 +227,9 @@ class Play extends Phaser.Scene{
                     owl.setVelocityY(-500);
                     this.jump = true;
                     --this.jumpCount;
-    //                owl.anims.play('fly');
                 }
             }
+            owl.anims.play("owlFly",true);
         }
 
         if(keySpace.isUp){
@@ -215,7 +238,9 @@ class Play extends Phaser.Scene{
 
         if(owl.body.touching.down){
             this.jumpCount = 1;
+            owl.anims.play("walk",true);
         }
+
         // background move speed
         this.field.tilePositionX += 3;
     }
@@ -246,25 +271,27 @@ class Play extends Phaser.Scene{
 
     // enemy
     addHawk(posX,posY){
+        let hawk;
         console.log("hawk pool length");
         console.log(this.hawkPool.getLength());
         if(this.hawkPool.getLength()){
             hawk = this.hawkPool.getFirst();
+            hawk.x = posX;
             hawk.y = posY;
             hawk.active = true;
             hawk.visible = true;
             this.hawkPool.remove(hawk);
         }
         else{
-            hawk = this.physics.add.sprite(posX, posY, "Hawk");
+            hawk = this.physics.add.sprite(posX, posY, "hawk");
             hawk.setImmovable(true);
             hawk.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.hawkGroup.add(hawk);
         }
-    
         hawk.setVelocityY(0);
         hawk.setFrictionX(0);
         hawk.body.allowGravity = false;
-        this.nextHawkRange = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
+        hawk.anims.play("hawkF");
+        this.nextHawkDistance = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
     }
 }
