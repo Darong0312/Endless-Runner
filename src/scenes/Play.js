@@ -64,7 +64,6 @@ class Play extends Phaser.Scene{
 
         this.addPlatform(game.config.width, game.config.width / 2);
 
-        this.hawkCount = 1;
         this.hawkGroup = this.add.group({
  
             // once a platform is removed, it's added to the pool
@@ -113,7 +112,6 @@ class Play extends Phaser.Scene{
 
         this.physics.add.overlap(owl,this.hawkGroup,function(owl,hawk){
             owl.anims.play('fly');
-            owl.anims.stop('walk');
             this.physics.world.removeCollider(this.platformCollider);
             owl.setVelocityX(0);
             owl.setVelocityY(200);
@@ -288,10 +286,10 @@ class Play extends Phaser.Scene{
             hawk.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.hawkGroup.add(hawk);
         }
+        hawk.anims.play("hawkF");
         hawk.setVelocityY(0);
         hawk.setFrictionX(0);
         hawk.body.allowGravity = false;
-        hawk.anims.play("hawkF");
         this.nextHawkDistance = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
     }
 }
