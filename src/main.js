@@ -21,4 +21,4 @@ let borderPadding = borderUISize / 3;
 // reserve keyboard variables
 let keySpace,keyUP,keyLEFT,keyRIGHT;
 
-var owl,platforms,hawk;
+var owl,hawk;

@@ -70,7 +70,7 @@ class Play extends Phaser.Scene{
                 hawk.scene.hawkGroup.add(hawk)
             }
         });
-        this.addHawk(gameOptions.hawkRange[1]);
+        this.addHawk(game.config.width,gameOptions.hawkRange[1]);
 /*
         this.addHawk(200);
         this.addHawk(400);
@@ -132,7 +132,7 @@ class Play extends Phaser.Scene{
 
     update(){
         owl.setVelocityX(0);
-        if(owl.y > config.height){
+        if(owl.y > config.height ){
             this.gameOver = true;
         }
 
@@ -178,9 +178,9 @@ class Play extends Phaser.Scene{
         },this);
  
         // adding new hawk
-        if(this.hawkCount == 0){
+        if(minRange > this.nextHawkRange){
             var randomRange = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
-            this.addHawk(randomRange);
+            this.addHawk(game.config.width,randomRange);
             this.hawkCount = 1;
             console.log(this.hawkCount);
             console.log("add in hawk");
@@ -245,7 +245,7 @@ class Play extends Phaser.Scene{
     }
 
     // enemy
-    addHawk(posY){
+    addHawk(posX,posY){
         console.log("hawk pool length");
         console.log(this.hawkPool.getLength());
         if(this.hawkPool.getLength()){
@@ -256,7 +256,7 @@ class Play extends Phaser.Scene{
             this.hawkPool.remove(hawk);
         }
         else{
-            hawk = this.physics.add.sprite(game.config.width, posY, "Hawk");
+            hawk = this.physics.add.sprite(posX, posY, "Hawk");
             hawk.setImmovable(true);
             hawk.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.hawkGroup.add(hawk);
