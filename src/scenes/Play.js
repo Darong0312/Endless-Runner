@@ -5,6 +5,7 @@ let gameOptions = {
     platformSizeRange: [150, 250],
     hawkPercent: 20,
 }
+// scene.physics
 
 class Play extends Phaser.Scene{
     constructor(){
@@ -42,8 +43,10 @@ class Play extends Phaser.Scene{
     create(){
         // setting background
         this.field = this.add.tileSprite(0,0,800,600,'field').setOrigin(0,0);
-
+        this.point = 0;
+        this.scoreTimes = 10;
         this.jump = false;
+        this.hawkCount=0;
 
         this.platformGroup = this.add.group({
  
@@ -94,7 +97,7 @@ class Play extends Phaser.Scene{
 
         // setting jump key to space bar
         keySpace = this.input.keyboard.addKey(32);
-
+    
         // adding collide with owl and platform
         this.platformCollider = this.physics.add.collider(owl,this.platformGroup,function(){
             // play "run" animation if the player is on a platform
@@ -106,7 +109,7 @@ class Play extends Phaser.Scene{
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
 
         this.jump = false;
-
+        timer = 0;
         this.gameOver = false;
         this.jumpCount = 0;
 
@@ -115,7 +118,7 @@ class Play extends Phaser.Scene{
             this.physics.world.removeCollider(this.platformCollider);
             owl.setVelocityX(0);
             owl.setVelocityY(200);
-            this.gameOver = true;   
+            this.gameOver = true;
         },null,this)
         
         // animation
@@ -152,18 +155,36 @@ class Play extends Phaser.Scene{
                 first:0
             }),
             // debug fps
-            framesRate: 10,
+            frameRate: 10,
             repeat: -1
         })
     }
 
     update(){
+        timer = this.time.now * 0.001;
+        let scoreConfig = {
+            fontFamily: 'Courier',
+            fontSize: '28px',
+            backgroundColor: '#F3B141',
+            color: '#843605',
+            align: 'right',
+            padding: {
+                top: 5,
+                bottom: 5,
+            },
+            fixedWidth: 100
+        }
+        scoreConfig.fixedWidth = 0;
+
         owl.setVelocityX(0);
         if(owl.y > config.height ){
             this.gameOver = true;
         }
 
         if(this.gameOver){
+            timer = 0;
+            this.scoreTimes = 10;
+            this.point = 0;
             this.add.text(game.config.width/3, game.config.height/2.5, 'Press Space Bar to restart');
         }
 
@@ -198,11 +219,12 @@ class Play extends Phaser.Scene{
             if(hawk.x < - hawk.displayWidth / 2){
                 this.hawkGroup.killAndHide(hawk);
                 this.hawkGroup.remove(hawk);
+                this.hawkCount --;
             }
         },this);
  
         // adding new hawk
-        if(minHawkDistance > this.nextHawkDistance){
+        if(minHawkDistance > this.nextHawkDistance && this.hawkCount < 2){
             var randomRange = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
             this.addHawk(game.config.width,randomRange);
         }
@@ -222,7 +244,7 @@ class Play extends Phaser.Scene{
         if(keySpace.isDown){
             if(!this.jump){
                 if(this.jumpCount > 0){
-                    owl.setVelocityY(-500);
+                    owl.setVelocityY(-450);
                     this.jump = true;
                     --this.jumpCount;
                 }
@@ -234,11 +256,19 @@ class Play extends Phaser.Scene{
             this.jump = false;
         }
 
-        if(owl.body.touching.down){
+        if(owl.body.touching.down && !this.gameOver){
             this.jumpCount = 1;
             owl.anims.play("walk",true);
         }
 
+        if(timer >= 20){
+            this.scoreTimes = 20;
+            this.point = timer*this.scoreTimes;
+        }
+        else{
+            this.point = Math.round(timer) *this.scoreTimes;
+        }
+        this.timeText = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, Math.round(this.point),scoreConfig);
         // background move speed
         this.field.tilePositionX += 3;
     }
@@ -286,10 +316,12 @@ class Play extends Phaser.Scene{
             hawk.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.hawkGroup.add(hawk);
         }
+        this.hawkCount ++;
         hawk.anims.play("hawkF");
         hawk.setVelocityY(0);
         hawk.setFrictionX(0);
         hawk.body.allowGravity = false;
         this.nextHawkDistance = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
     }
+
 }
