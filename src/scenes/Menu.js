@@ -5,6 +5,7 @@ class Menu extends Phaser.Scene {
 
     preload(){
         this.load.image('OwlMenu','./assets/OwlMenu.png');
+        this.load.audio('select','./assets/select.wav');
     }
     create() {
         // show menu image
@@ -15,6 +16,7 @@ class Menu extends Phaser.Scene {
 
     update(){
         if(Phaser.Input.Keyboard.JustDown(keySpace)){
+            this.sound.play('select');
             this.scene.start("playScene");
             console.log("save");
         }

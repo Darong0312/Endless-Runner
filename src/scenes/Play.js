@@ -15,6 +15,9 @@ class Play extends Phaser.Scene{
 
     // adding img
     preload(){
+        this.load.audio('hawksound','./assets/jump1.wav');
+        this.load.audio('owlsound','./assets/jump3.wav');
+        this.load.audio('hit','./assets/hit.wav');
         this.load.image('BabyOwl','./assets/BabyOwl.png');
         this.load.image('field','./assets/field.png');
         this.load.image('ground','./assets/ground.png');
@@ -140,6 +143,7 @@ class Play extends Phaser.Scene{
         this.jumpCount = 0;
 
         this.physics.add.overlap(owl,this.hawkGroup,function(owl,hawk){
+            this.sound.play('hit');
             owl.anims.play('fly');
             this.physics.world.removeCollider(this.platformCollider);
             owl.setVelocityX(0);
@@ -148,6 +152,7 @@ class Play extends Phaser.Scene{
         },null,this)
 
         this.physics.add.overlap(owl,this.foxGroup,function(owl,fox){
+            this.sound.play('hit');
             owl.anims.play('fly');
             this.physics.world.removeCollider(this.platformCollider);
             owl.setVelocityX(0);
@@ -294,6 +299,7 @@ class Play extends Phaser.Scene{
         // give the owl an upward velocity when space bar is hit
         // double jump
         if(keySpace.isDown){
+            this.sound.play('owlsound');
             if(!this.jump){
                 if(this.jumpCount > 0){
                     owl.setVelocityY(-450);
@@ -403,6 +409,7 @@ class Play extends Phaser.Scene{
             this.hawkGroup.add(hawk);
         }
         this.hawkCount ++;
+        this.sound.play('hawksound');
         hawk.anims.play("hawkF");
         hawk.setVelocityY(0);
         hawk.setFrictionX(0);
