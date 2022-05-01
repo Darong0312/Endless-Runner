@@ -3,7 +3,8 @@ let gameOptions = {
     spawnRange: [120, 180],
     hawkRange: [200,400],
     platformSizeRange: [150, 250],
-    hawkPercent: 20,
+    hawkPercent: 5,
+    foxPercent: 25,
 }
 // scene.physics
 
@@ -19,6 +20,12 @@ class Play extends Phaser.Scene{
         this.load.image('ground','./assets/ground.png');
         this.load.image('plat','./assets/platform.png');
         this.load.image('jump','./assets/owl flutter.png');
+        this.load.spritesheet('fox','./assets/foxani.png', {
+            frameWidth: 48,
+            frameHeight: 72,
+            startFrame:0,
+            endFrame: 5
+        });
         this.load.spritesheet('owlJump','./assets/owl jump.png', {
             frameWidth: 46,
             frameHeight: 57,
@@ -84,6 +91,25 @@ class Play extends Phaser.Scene{
             }
         });
         this.addHawk(game.config.width,gameOptions.hawkRange[1]);
+
+        this.foxGroup = this.add.group({
+ 
+            // once a firecamp is removed, it's added to the pool
+            removeCallback: function(fox){
+                fox.scene.foxPool.add(fox)
+            }
+        });
+ 
+        // fire pool
+        this.foxPool = this.add.group({
+ 
+            // once a fire is removed from the pool, it's added to the active fire group
+            removeCallback: function(fox){
+                fox.scene.foxGroup.add(fox)
+            }
+        });
+
+        this.addedPlatforms = 0;
 /*
         this.addHawk(200);
         this.addHawk(400);
@@ -150,6 +176,18 @@ class Play extends Phaser.Scene{
         this.anims.create({
             key: 'hawkF',
             frames: this.anims.generateFrameNumbers("hawk" ,{
+                start: 0,
+                end: 5,
+                first:0
+            }),
+            // debug fps
+            frameRate: 10,
+            repeat: -1
+        })
+
+        this.anims.create({
+            key: 'foxl',
+            frames: this.anims.generateFrameNumbers("fox" ,{
                 start: 0,
                 end: 5,
                 first:0
@@ -229,6 +267,12 @@ class Play extends Phaser.Scene{
             this.addHawk(game.config.width,randomRange);
         }
 
+        this.foxGroup.getChildren().forEach(function(fox){
+            if(fox.x < - fox.displayWidth / 2){
+                this.foxGroup.killAndHide(fox);
+                this.foxGroup.remove(fox);
+            }
+        }, this);
 
         //let the owl move
         const movespeed = 300;
@@ -274,6 +318,7 @@ class Play extends Phaser.Scene{
     }
 
     addPlatform(platformWidth, posX){
+        this.addedPlatforms ++;
         let platform;
         console.log("platform pool length");
         console.log(this.platformPool.getLength());
@@ -295,6 +340,39 @@ class Play extends Phaser.Scene{
         platform.body.allowGravity = false;
         platform.displayWidth = platformWidth;
         this.nextPlatformDistance = Phaser.Math.Between(gameOptions.spawnRange[0], gameOptions.spawnRange[1]);
+
+        if(this.addedPlatforms > 1){
+            //fox added
+            if(Phaser.Math.Between(1, 100) <= gameOptions.foxPercent){
+                if(this.foxPool.getLength()){
+                    console.log("fox 1")
+                    let fox = this.foxPool.getFirst();
+                    fox.x = posX - platformWidth / 2 + Phaser.Math.Between(1, platformWidth);
+                    fox.y = game.config.height - borderUISize - borderPadding*10;
+                    fox.alpha = 1;
+                    fox.active = true;
+                    fox.visible = true;
+                    this.foxPool.remove(fox);
+                    fox.anims.play("foxl");
+                    fox.setVelocityY(0);
+                    fox.setFrictionX(0);
+                    fox.body.allowGravity = false;
+                }
+                else{
+                    console.log("fox 2")
+                    let fox = this.physics.add.sprite(posX - platformWidth / 2 + Phaser.Math.Between(1, platformWidth), game.config.height - borderUISize - borderPadding*10, "fox");
+                    fox.setImmovable(true);
+                    fox.setVelocityX(platform.body.velocity.x);
+                    fox.setSize(8, 2, true)
+                    fox.setDepth(2);
+                    this.foxGroup.add(fox);
+                    fox.anims.play("foxl");
+                    fox.setVelocityY(0);
+                    fox.setFrictionX(0);
+                    fox.body.allowGravity = false;
+                }
+            }
+        }
     }
 
     // enemy
