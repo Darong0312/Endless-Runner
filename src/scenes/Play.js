@@ -146,6 +146,14 @@ class Play extends Phaser.Scene{
             owl.setVelocityY(200);
             this.gameOver = true;
         },null,this)
+
+        this.physics.add.overlap(owl,this.foxGroup,function(owl,fox){
+            owl.anims.play('fly');
+            this.physics.world.removeCollider(this.platformCollider);
+            owl.setVelocityX(0);
+            owl.setVelocityY(200);
+            this.gameOver = true;
+        },null,this)
         
         // animation
         this.anims.create({
