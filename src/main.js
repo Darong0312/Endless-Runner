@@ -9,7 +9,7 @@ let config = {
             debug: true
         }
     },
-    scene: [ Menu, Play ]
+    scene: [ Menu, Play , teach]
 }
 
 let game = new Phaser.Game(config);
