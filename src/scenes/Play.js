@@ -17,6 +17,9 @@ class Play extends Phaser.Scene{
     preload(){
         this.load.image('BabyOwl','./assets/BabyOwl.png');
         this.load.image('field','./assets/field.png');
+        this.load.image('back','./assets/Back.png');
+        this.load.image('front','./assets/Front.png');
+        this.load.image('mid','./assets/middle.png');
         this.load.image('ground','./assets/ground.png');
         this.load.image('plat','./assets/platform.png');
         this.load.image('jump','./assets/owl flutter.png');
@@ -56,8 +59,10 @@ class Play extends Phaser.Scene{
 
     create(){
         // setting background and scoreboard
-        this.field = this.add.tileSprite(0,0,800,600,'field').setOrigin(0,0).setDepth(0);
-        this.scoreBoard = this.add.image(borderUISize + borderPadding - 20, borderUISize + borderPadding*2 -5,'score').setOrigin(0).setDepth(1).setScale(2.7);
+        this.back = this.add.tileSprite(0,0,800,600,'back').setOrigin(0,0).setDepth(0).setScale(3.5);
+        this.middle = this.add.tileSprite(0,0,800,600,'mid').setOrigin(0,0).setDepth(1).setScale(3.5);
+        this.front = this.add.tileSprite(0,0,800,600,'front').setOrigin(0,0).setDepth(2).setScale(3.5);
+        this.scoreBoard = this.add.image(borderUISize + borderPadding - 20, borderUISize + borderPadding*2 -5,'score').setOrigin(0).setDepth(3).setScale(2.7);
 
         // setting score
         this.point = 0;
@@ -137,7 +142,7 @@ class Play extends Phaser.Scene{
         })
 
         // init owl
-        owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'run');
+        owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'run').setDepth(4);
         owl.setCollideWorldBounds(true);
 
         // setting platform cycle
@@ -375,9 +380,12 @@ class Play extends Phaser.Scene{
         }
 
         // score text box
-        this.scoreText = this.add.text(borderUISize + borderPadding + 25, borderUISize + borderPadding*2, this.point,scoreConfig).setOrigin(0).setDepth(2);
+        this.scoreText = this.add.text(borderUISize + borderPadding + 25, borderUISize + borderPadding*2, this.point,scoreConfig).setOrigin(0).setDepth(4);
         
-        this.field.tilePositionX += 3;
+        this.back.tilePositionX += 0.5;
+        this.middle.tilePositionX += 1;
+        this.front.tilePositionX += 1.5;
+        
     }
 
     // add platform
@@ -393,7 +401,7 @@ class Play extends Phaser.Scene{
             this.platformPool.remove(platform);
         }
         else{
-            platform = this.physics.add.sprite(posX, game.config.height * 0.8, "plat");
+            platform = this.physics.add.sprite(posX, game.config.height * 0.8, "plat").setDepth(4);
             platform.setImmovable(true);
             platform.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.platformGroup.add(platform);
@@ -462,7 +470,7 @@ class Play extends Phaser.Scene{
         this.hawkCount ++; // hawk spawn condition
 
         // animation and audio for hawk
-        hawk.anims.play("hawkF");
+        hawk.anims.play("hawkF").setDepth(4);
         if(!this.gameOver){
             this.sound.play('hawkSound');
         }
