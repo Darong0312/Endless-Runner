@@ -59,9 +59,9 @@ class Play extends Phaser.Scene{
 
     create(){
         // setting background and scoreboard
-        this.back = this.add.tileSprite(0,0,800,600,'back').setOrigin(0,0).setDepth(0).setScale(3.5);
+        this.back = this.add.tileSprite(0,0,800,600,'back').setOrigin(0,0).setDepth(0).setScale(3.2);
         this.middle = this.add.tileSprite(0,0,800,600,'mid').setOrigin(0,0).setDepth(1).setScale(3.5);
-        this.front = this.add.tileSprite(0,0,800,600,'front').setOrigin(0,0).setDepth(2).setScale(3.5);
+        this.front = this.add.tileSprite(0,0,800,600,'front').setOrigin(0,0).setDepth(2).setScale(3.6);
         this.scoreBoard = this.add.image(borderUISize + borderPadding - 20, borderUISize + borderPadding*2 -5,'score').setOrigin(0).setDepth(3).setScale(2.7);
 
         // setting score
@@ -294,7 +294,7 @@ class Play extends Phaser.Scene{
             this.point = 0; // reset points
             owl.setImmovable(true);
             owl.setCollideWorldBounds(false);
-            this.add.text(game.config.width/3, game.config.height/2.5, 'Press Space Bar to restart');
+            this.add.text(game.config.width/3, game.config.height/2.5, 'Press Space Bar to restart').setDepth(4);
         }
 
         // clear fox pool, stop looping bgm, and return to tutorial scene
