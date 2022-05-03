@@ -1,10 +1,10 @@
 let gameOptions = {
     platformStartSpeed: 350,
     spawnRange: [120, 180],
-    hawkRange: [200,400],
-    platformSizeRange: [150, 250],
-    hawkPercent: 5,
+    hawkRange: [100,300],
+    platformSizeRange: [150, 350],
     foxPercent: 25,
+    gameTimer: 16000,
 }
 // scene.physics
 
@@ -15,20 +15,12 @@ class Play extends Phaser.Scene{
 
     // adding img
     preload(){
-        this.load.audio('hawksound','./assets/jump1.wav');
-        this.load.audio('owlsound','./assets/jump3.wav');
-        this.load.audio('hit','./assets/hit.wav');
         this.load.image('BabyOwl','./assets/BabyOwl.png');
         this.load.image('field','./assets/field.png');
         this.load.image('ground','./assets/ground.png');
         this.load.image('plat','./assets/platform.png');
         this.load.image('jump','./assets/owl flutter.png');
-        this.load.spritesheet('fox','./assets/foxani.png', {
-            frameWidth: 48,
-            frameHeight: 72,
-            startFrame:0,
-            endFrame: 5
-        });
+        this.load.image('score','./assets/score.png');
         this.load.spritesheet('owlJump','./assets/owl jump.png', {
             frameWidth: 46,
             frameHeight: 57,
@@ -47,114 +39,53 @@ class Play extends Phaser.Scene{
             startFrame: 0, 
             endFrame: 7
         });
+        this.load.spritesheet('fox','./assets/foxani.png', {
+            frameWidth: 48,
+            frameHeight: 72,
+            startFrame:0,
+            endFrame: 5
+        });
+
+        // load audio
+        this.load.audio('jump','./assets/jump.wav');
+        this.load.audio('hawkSound','./assets/jump1.wav');
+        this.load.audio('hit','./assets/hit.wav');
+        this.load.audio('bgm','./assets/OwlGame.wav');
     }
 
 
     create(){
-        // setting background
-        this.field = this.add.tileSprite(0,0,800,600,'field').setOrigin(0,0);
+        // setting background and scoreboard
+        this.field = this.add.tileSprite(0,0,800,600,'field').setOrigin(0,0).setDepth(0);
+        this.scoreBoard = this.add.image(borderUISize + borderPadding - 20, borderUISize + borderPadding*2 -5,'score').setOrigin(0).setDepth(1).setScale(2.7);
+
+        // setting score
         this.point = 0;
-        this.scoreTimes = 10;
+
+        // setting jump variables
         this.jump = false;
+        this.jumpCount = 0;
+
+        // setting hawk spawn conditions
         this.hawkCount=0;
+        this.maxHawk = 1;
 
-        this.platformGroup = this.add.group({
- 
-            // once a platform is removed, it's added to the pool
-            removeCallback: function(platform){
-                platform.scene.platformPool.add(platform)
-            }
-        });
- 
-        // pool
-        this.platformPool = this.add.group({
- 
-            // once a platform is removed from the pool, it's added to the active platforms group
-            removeCallback: function(platform){
-                platform.scene.platformGroup.add(platform)
-            }
-        });
+        // set up background music
+        this.bgm = this.sound.add('bgm');
+        this.bgm.setVolume(0.3);
+        this.bgm.loop = true;
+        this.bgm.play();
 
-        this.hawkGroup = this.add.group({
- 
-            // once a platform is removed, it's added to the pool
-            removeCallback: function(hawk){
-                hawk.scene.hawkPool.add(hawk)
-            }
-        });
- 
-        // pool
-        this.hawkPool = this.add.group({
- 
-            // once a platform is removed from the pool, it's added to the active platforms group
-            removeCallback: function(hawk){
-                hawk.scene.hawkGroup.add(hawk)
-            }
-        });
-        this.addHawk(game.config.width,gameOptions.hawkRange[1]);
-
-        this.foxGroup = this.add.group({
- 
-            removeCallback: function(fox){
-                fox.scene.foxPool.add(fox)
-            }
-        });
- 
-        this.foxPool = this.add.group({
- 
-            removeCallback: function(fox){
-                fox.scene.foxGroup.add(fox)
-            }
-        });
-
-        this.addedPlatforms = 0;
-
-        this.addPlatform(game.config.width, game.config.width / 2);
-
-        //this.foxpoolnumber = 0;
-/*
-        this.addHawk(200);
-        this.addHawk(400);
-*/
-        // init owl
-        owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'run');
-
-        // setting jump key to space bar
-        keySpace = this.input.keyboard.addKey(32);
-    
-        // adding collide with owl and platform
-        this.platformCollider = this.physics.add.collider(owl,this.platformGroup,function(){
-            // play "run" animation if the player is on a platform
-        }, null, this);
-//        this.physics.add.collider(owl,hawk);
+        // game over condition
+        this.gameOver = false;
 
         //setting left and right key.
         keyLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         keyRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-
-        this.jump = false;
-        timer = 0;
-        this.gameOver = false;
-        this.jumpCount = 0;
-
-        this.physics.add.overlap(owl,this.hawkGroup,function(owl,hawk){
-            this.sound.play('hit');
-            owl.anims.play('fly');
-            this.physics.world.removeCollider(this.platformCollider);
-            owl.setVelocityX(0);
-            owl.setVelocityY(200);
-            this.gameOver = true;
-        },null,this)
-
-        this.physics.add.overlap(owl,this.foxGroup,function(owl,fox){
-            this.sound.play('hit');
-            owl.anims.play('fly');
-            this.physics.world.removeCollider(this.platformCollider);
-            owl.setVelocityX(0);
-            owl.setVelocityY(200);
-            this.gameOver = true;
-        },null,this)
         
+        // setting jump key to space bar
+        keySpace = this.input.keyboard.addKey(32);
+
         // animation
         this.anims.create({
             key: 'fly',
@@ -204,14 +135,131 @@ class Play extends Phaser.Scene{
             frameRate: 10,
             repeat: -1
         })
+
+        // init owl
+        owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'run');
+
+        // setting platform cycle
+        this.platformGroup = this.add.group({
+ 
+            // once a platform is removed, it's added to the pool
+            removeCallback: function(platform){
+                platform.scene.platformPool.add(platform)
+            }
+        });
+ 
+        // pool
+        this.platformPool = this.add.group({
+ 
+            // once a platform is removed from the pool, it's added to the active platforms group
+            removeCallback: function(platform){
+                platform.scene.platformGroup.add(platform)
+            }
+        });
+
+        // setting hawk cycle
+        this.hawkGroup = this.add.group({
+ 
+            // once a platform is removed, it's added to the pool
+            removeCallback: function(hawk){
+                hawk.scene.hawkPool.add(hawk)
+            }
+        });
+ 
+        // pool
+        this.hawkPool = this.add.group({
+ 
+            // once a platform is removed from the pool, it's added to the active platforms group
+            removeCallback: function(hawk){
+                hawk.scene.hawkGroup.add(hawk)
+            }
+        });
+        this.addHawk(game.config.width,gameOptions.hawkRange[1]);
+
+        // setting fox cycle
+        this.foxGroup = this.add.group({
+ 
+            removeCallback: function(fox){
+                fox.scene.foxPool.add(fox)
+            }
+        });
+ 
+        this.foxPool = this.add.group({
+ 
+            removeCallback: function(fox){
+                fox.scene.foxGroup.add(fox)
+            }
+        });
+
+        this.addedPlatforms = 0;
+
+        this.addPlatform(game.config.width, game.config.width / 2);
+
+    
+        // adding collide with owl and platform
+        this.platformCollider = this.physics.add.collider(owl,this.platformGroup);
+
+        // adding overlap for hawk and player
+        this.physics.add.overlap(owl,this.hawkGroup,function(owl){
+            owl.anims.play('fly'); // play the animation
+
+            // remove collision between player and platforms
+            this.physics.world.removeCollider(this.platformCollider);
+            
+            // ensure sound hit only play once
+            if(!this.gameOver){
+                this.sound.play('hit');
+            }
+            
+            // game over
+            this.gameOver = true;
+
+        },null,this)
+
+        // adding overlap for fox and player
+        this.physics.add.overlap(owl,this.foxGroup,function(owl){
+            owl.anims.play('fly'); // play the animation
+
+            // remove collision between player and platforms
+            this.physics.world.removeCollider(this.platformCollider);
+            
+            // ensure sound hit only play once
+            if(!this.gameOver){
+                this.sound.play('hit');
+            }
+            
+            // game over
+            this.gameOver = true;
+
+        },null,this)
+
+
+        // set up timer
+        this.currentTime = 0;
+        this.clock = this.time.addEvent({
+            delay:1000,
+            callback: increaseTime,
+            callbackScope: this,
+            loop: true
+        });
+
+        // increase the time and point
+        function increaseTime(){
+            this.currentTime += 1000;
+            if(this.currentTime >= gameOptions.gameTimer && !this.gameOver ){
+                this.point += 20;
+            }
+            else{
+                this.point += 10;
+            }
+        }
     }
 
     update(){
-        timer = this.time.now * 0.001;
         let scoreConfig = {
             fontFamily: 'Courier',
             fontSize: '28px',
-            backgroundColor: '#F3B141',
+            backgroundColor: '#8c744c',
             color: '#843605',
             align: 'right',
             padding: {
@@ -222,27 +270,34 @@ class Play extends Phaser.Scene{
         }
         scoreConfig.fixedWidth = 0;
 
+        if(this.currentTime >= gameOptions.gameTimer && !this.gameOver){
+            this.maxHawk = 2;
+        }
+        else{
+        //   do nothing
+        }
+
         owl.setVelocityX(0);
-        if(owl.y > config.height ){
+
+        // if the player fall of the canvas or beyond the x axis, game over
+        if(owl.y > config.height || owl.x -30 > config.width || owl.x+30 < 0){
             this.gameOver = true;
         }
 
         if(this.gameOver){
-            timer = 0;
-            this.scoreTimes = 10;
-            this.point = 0;
+            this.point = 0; // reset points
+            owl.setImmovable(true);
             this.add.text(game.config.width/3, game.config.height/2.5, 'Press Space Bar to restart');
         }
 
+        // clear fox pool, stop looping bgm, and return to tutorial scene
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keySpace)) {
             this.foxPool.clear();
-            this.scene.start("playScene");
+            this.bgm.stop();
+            this.scene.start("teachScene");
         }
 
-        if(this.gameOver && Phaser.Input.Keyboard.JustDown(keySpace)) {
-            this.scene.start("menuScene");
-        }
-
+        // next platform spawn set up
         let minDistance = game.config.width;
         this.platformGroup.getChildren().forEach(function(platform){
             let platformDistance = game.config.width - platform.x - platform.displayWidth / 2;
@@ -252,13 +307,14 @@ class Play extends Phaser.Scene{
                 this.platformGroup.remove(platform);
             }
         },this);
- 
+
         // adding new platforms
         if(minDistance > this.nextPlatformDistance){
             var nextPlatformWidth = Phaser.Math.Between(gameOptions.platformSizeRange[0], gameOptions.platformSizeRange[1]);
             this.addPlatform(nextPlatformWidth, game.config.width + nextPlatformWidth / 2);
         }
 
+        // next hawk spawn set up
         let minHawkDistance = game.config.width;
         this.hawkGroup.getChildren().forEach(function(hawk){
             let hawkDistance = game.config.width - hawk.x - hawk.displayWidth / 2;
@@ -271,20 +327,20 @@ class Play extends Phaser.Scene{
         },this);
  
         // adding new hawk
-        if(minHawkDistance > this.nextHawkDistance && this.hawkCount < 2){
+        if(minHawkDistance > this.nextHawkDistance && this.hawkCount < this.maxHawk){
             var randomRange = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
             this.addHawk(game.config.width,randomRange);
         }
 
+        // recycle fox
         this.foxGroup.getChildren().forEach(function(fox){
             if(fox.x < - fox.displayWidth / 2){
-                console.log("foxpool add 1");
                 this.foxGroup.killAndHide(fox);
                 this.foxGroup.remove(fox);
             }
         }, this);
 
-        //let the owl move
+        // set movespeed for player
         const movespeed = 300;
         
         if(keyLEFT.isDown){
@@ -296,12 +352,12 @@ class Play extends Phaser.Scene{
         // give the owl an upward velocity when space bar is hit
         // double jump
         if(keySpace.isDown){
-            this.sound.play('owlsound');
             if(!this.jump){
                 if(this.jumpCount > 0){
                     owl.setVelocityY(-450);
                     this.jump = true;
                     --this.jumpCount;
+                    this.sound.play('jump');
                 }
             }
             owl.anims.play("owlFly",true);
@@ -316,18 +372,13 @@ class Play extends Phaser.Scene{
             owl.anims.play("walk",true);
         }
 
-        if(timer >= 20){
-            this.scoreTimes = 20;
-            this.point = timer*this.scoreTimes;
-        }
-        else{
-            this.point = Math.round(timer) *this.scoreTimes;
-        }
-        this.timeText = this.add.text(borderUISize + borderPadding, borderUISize + borderPadding*2, Math.round(this.point),scoreConfig);
-        // background move speed
+        // score text box
+        this.scoreText = this.add.text(borderUISize + borderPadding + 25, borderUISize + borderPadding*2, this.point,scoreConfig).setOrigin(0).setDepth(2);
+        
         this.field.tilePositionX += 3;
     }
 
+    // add platform
     addPlatform(platformWidth, posX){
         this.addedPlatforms ++;
         let platform;
@@ -344,19 +395,22 @@ class Play extends Phaser.Scene{
             platform.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.platformGroup.add(platform);
         }
-        platform.setVelocityY(0);
+
+        // remove platform fiction, and disable gravity
         platform.setFrictionX(0);
         platform.body.allowGravity = false;
+
+        // platform display width
         platform.displayWidth = platformWidth;
+
+        // get next platform spawn distance
         this.nextPlatformDistance = Phaser.Math.Between(gameOptions.spawnRange[0], gameOptions.spawnRange[1]);
 
+        // if there is a platform, calculate the chance for spawning a fox
         if(this.addedPlatforms > 1){
             //fox added
             if(Phaser.Math.Between(1, 100) <= gameOptions.foxPercent){
-                console.log("fox pool length");
-                console.log(this.foxPool.getLength());
                 if(this.foxPool.getLength()){
-                    console.log("fox1");
                     let fox = this.foxPool.getFirst();
                     fox.x = posX - platformWidth / 2 + Phaser.Math.Between(1, platformWidth);
                     fox.y = game.config.height - borderUISize - borderPadding*10;
@@ -370,11 +424,10 @@ class Play extends Phaser.Scene{
                     fox.body.allowGravity = false;
                 }
                 else{
-                    console.log("fox2");
                     let fox = this.physics.add.sprite(posX - platformWidth / 2 + Phaser.Math.Between(1, platformWidth), game.config.height - borderUISize - borderPadding*10, "fox");
                     fox.setImmovable(true);
                     fox.setVelocityX(platform.body.velocity.x);
-                    fox.setSize(8, 2, true)
+                    fox.setSize(44, 72, true)
                     fox.setDepth(2);
                     this.foxGroup.add(fox);
                     fox.anims.play("foxl");
@@ -386,7 +439,7 @@ class Play extends Phaser.Scene{
         }
     }
 
-    // enemy
+    // add enemy hawk
     addHawk(posX,posY){
         let hawk;
         if(this.hawkPool.getLength()){
@@ -403,13 +456,19 @@ class Play extends Phaser.Scene{
             hawk.setVelocityX(gameOptions.platformStartSpeed * -1);
             this.hawkGroup.add(hawk);
         }
-        this.hawkCount ++;
-        this.sound.play('hawksound');
+        this.hawkCount ++; // hawk spawn condition
+
+        // animation and audio for hawk
         hawk.anims.play("hawkF");
-        hawk.setVelocityY(0);
+        if(!this.gameOver){
+            this.sound.play('hawkSound');
+        }
+
+        // remove hawk friction and gravity
         hawk.setFrictionX(0);
         hawk.body.allowGravity = false;
+
+        // set up next hawk spawn distance
         this.nextHawkDistance = Phaser.Math.Between(gameOptions.hawkRange[0], gameOptions.hawkRange[1]);
     }
-
 }
