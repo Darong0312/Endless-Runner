@@ -379,6 +379,7 @@ class Play extends Phaser.Scene{
     }
 
     // add platform
+    // cite: https://www.emanueleferonato.com/2019/01/23/html5-endless-runner-built-with-phaser-and-arcade-physics-step-5-adding-deadly-fire-being-kind-with-players-by-setting-its-body-smaller-than-the-image/
     addPlatform(platformWidth, posX){
         this.addedPlatforms ++;
         let platform;

@@ -30,5 +30,12 @@ Game Name: Baby Owl
 
 Data completed: 5/2/2022
 
-// comment blocks
+// code blocks
+We implemented the random generator which generate the platforms, the foxes, and the hawks in a random place within a random range.
+This was interesting because we were encounter platforms falling in the first place, which involved with the physics.
+We are proud of able to get thw random generators to work together. 
+We learned from the platform random generator, and implement our own hawk generator.
+
+// art blocks
+
 */
