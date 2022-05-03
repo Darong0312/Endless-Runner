@@ -19,6 +19,16 @@ let borderUISize = game.config.height / 15;
 let borderPadding = borderUISize / 3;
 
 // reserve keyboard variables
-let keySpace,keyUP,keyLEFT,keyRIGHT, timer;
+var keySpace,keyUP,keyLEFT,keyRIGHT, timer;
 
 var owl;
+
+/*
+Sarah Hower, Yuanzheng Ji, Annika Kennedy, Darong Li
+
+Game Name: Baby Owl
+
+Data completed: 5/2/2022
+
+// comment blocks
+*/
