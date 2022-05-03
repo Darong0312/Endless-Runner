@@ -75,8 +75,6 @@ class Play extends Phaser.Scene{
             }
         });
 
-        this.addPlatform(game.config.width, game.config.width / 2);
-
         this.hawkGroup = this.add.group({
  
             // once a platform is removed, it's added to the pool
@@ -97,30 +95,27 @@ class Play extends Phaser.Scene{
 
         this.foxGroup = this.add.group({
  
-            // once a firecamp is removed, it's added to the pool
             removeCallback: function(fox){
                 fox.scene.foxPool.add(fox)
             }
         });
  
-        // fire pool
         this.foxPool = this.add.group({
  
-            // once a fire is removed from the pool, it's added to the active fire group
             removeCallback: function(fox){
                 fox.scene.foxGroup.add(fox)
             }
         });
 
         this.addedPlatforms = 0;
+
+        this.addPlatform(game.config.width, game.config.width / 2);
+
+        //this.foxpoolnumber = 0;
 /*
         this.addHawk(200);
         this.addHawk(400);
 */
-        //timer = game.time.create(false);
-
-        //timer.loop(2000,"jump+1", this);
-
         // init owl
         owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'run');
 
@@ -240,7 +235,8 @@ class Play extends Phaser.Scene{
         }
 
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keySpace)) {
-            this.scene.restart();
+            this.foxPool.clear();
+            this.scene.start("playScene");
         }
 
         if(this.gameOver && Phaser.Input.Keyboard.JustDown(keySpace)) {
@@ -282,6 +278,7 @@ class Play extends Phaser.Scene{
 
         this.foxGroup.getChildren().forEach(function(fox){
             if(fox.x < - fox.displayWidth / 2){
+                console.log("foxpool add 1");
                 this.foxGroup.killAndHide(fox);
                 this.foxGroup.remove(fox);
             }
@@ -334,8 +331,6 @@ class Play extends Phaser.Scene{
     addPlatform(platformWidth, posX){
         this.addedPlatforms ++;
         let platform;
-        console.log("platform pool length");
-        console.log(this.platformPool.getLength());
         if(this.platformPool.getLength()){
             platform = this.platformPool.getFirst();
             platform.x = posX;
@@ -358,8 +353,10 @@ class Play extends Phaser.Scene{
         if(this.addedPlatforms > 1){
             //fox added
             if(Phaser.Math.Between(1, 100) <= gameOptions.foxPercent){
+                console.log("fox pool length");
+                console.log(this.foxPool.getLength());
                 if(this.foxPool.getLength()){
-                    console.log("fox 1")
+                    console.log("fox1");
                     let fox = this.foxPool.getFirst();
                     fox.x = posX - platformWidth / 2 + Phaser.Math.Between(1, platformWidth);
                     fox.y = game.config.height - borderUISize - borderPadding*10;
@@ -373,7 +370,7 @@ class Play extends Phaser.Scene{
                     fox.body.allowGravity = false;
                 }
                 else{
-                    console.log("fox 2")
+                    console.log("fox2");
                     let fox = this.physics.add.sprite(posX - platformWidth / 2 + Phaser.Math.Between(1, platformWidth), game.config.height - borderUISize - borderPadding*10, "fox");
                     fox.setImmovable(true);
                     fox.setVelocityX(platform.body.velocity.x);
@@ -392,8 +389,6 @@ class Play extends Phaser.Scene{
     // enemy
     addHawk(posX,posY){
         let hawk;
-        console.log("hawk pool length");
-        console.log(this.hawkPool.getLength());
         if(this.hawkPool.getLength()){
             hawk = this.hawkPool.getFirst();
             hawk.x = posX;
