@@ -292,7 +292,6 @@ class Play extends Phaser.Scene{
 
         if(this.gameOver){
             this.point = 0; // reset points
-            owl.setImmovable(true);
             owl.setCollideWorldBounds(false);
             this.add.text(game.config.width/3, game.config.height/2.5, 'Press Space Bar to restart').setDepth(4);
         }
@@ -350,9 +349,9 @@ class Play extends Phaser.Scene{
         // set movespeed for player
         const movespeed = 300;
         
-        if(keyLEFT.isDown){
+        if(keyLEFT.isDown && !this.gameOver){
             owl.setVelocityX(-movespeed);
-        }else if(keyRIGHT.isDown){
+        }else if(keyRIGHT.isDown && !this.gameOver){
             owl.setVelocityX(movespeed);
         }
 
