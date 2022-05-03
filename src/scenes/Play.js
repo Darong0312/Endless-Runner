@@ -19,7 +19,7 @@ class Play extends Phaser.Scene{
         this.load.image('field','./assets/field.png');
         this.load.image('back','./assets/Back.png');
         this.load.image('front','./assets/Front.png');
-        this.load.image('mid','./assets/middle.png');
+        this.load.image('mid','./assets/Middle.png');
         this.load.image('ground','./assets/ground.png');
         this.load.image('plat','./assets/platform.png');
         this.load.image('jump','./assets/owl flutter.png');
