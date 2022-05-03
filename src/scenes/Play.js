@@ -138,6 +138,7 @@ class Play extends Phaser.Scene{
 
         // init owl
         owl = this.physics.add.sprite(game.config.width/15, game.config.height - borderUISize - borderPadding*10,'run');
+        owl.setCollideWorldBounds(true);
 
         // setting platform cycle
         this.platformGroup = this.add.group({
@@ -280,13 +281,14 @@ class Play extends Phaser.Scene{
         owl.setVelocityX(0);
 
         // if the player fall of the canvas or beyond the x axis, game over
-        if(owl.y > config.height || owl.x -30 > config.width || owl.x+30 < 0){
+        if(owl.y > game.config.height * 0.8 + 70){
             this.gameOver = true;
         }
 
         if(this.gameOver){
             this.point = 0; // reset points
             owl.setImmovable(true);
+            owl.setCollideWorldBounds(false);
             this.add.text(game.config.width/3, game.config.height/2.5, 'Press Space Bar to restart');
         }
 
