@@ -374,7 +374,7 @@ class Play extends Phaser.Scene{
                     let fox = this.physics.add.sprite(posX - platformWidth / 2 + Phaser.Math.Between(1, platformWidth), game.config.height - borderUISize - borderPadding*10, "fox");
                     fox.setImmovable(true);
                     fox.setVelocityX(platform.body.velocity.x);
-                    fox.setSize(8, 2, true)
+                    fox.setSize(44, 72, true)
                     fox.setDepth(2);
                     this.foxGroup.add(fox);
                     fox.anims.play("foxl");
